@@ -580,7 +580,7 @@
       quizSelect.innerHTML = '';
       availableUnits.forEach(unit => {
         const isSelected = (selectedId && unit === selectedId) ? 'selected' : '';
-        quizSelect.innerHTML += `<option value="${unit}" isSelected>{unit}</option>`;
+        quizSelect.innerHTML += `<option value="${unit}" ${isSelected}>${unit}</option>`;
       });
     }
 
@@ -590,7 +590,7 @@
 
       showToast(`載入【${selectedUnit}】題目中...`, "fa-spinner fa-spin");
       try {
-        const response = await fetch(`GASAPIURL?action=getInitialData&quizId={encodeURIComponent(selectedUnit)}`);
+        const response = await fetch(`${GAS_API_URL}?action=getInitialData&quizId=${encodeURIComponent(selectedUnit)}`);
         const result = await response.json();
         if (result.status === 'success' && result.questions) {
           currentQuizData = result.questions;
@@ -607,7 +607,7 @@
       if (classes.length > 0) {
         classSelect.innerHTML = '';
         classes.forEach(c => {
-          classSelect.innerHTML += `<option value="c">{c}</option>`;
+          classSelect.innerHTML += `<option value="${c}">${c}</option>`;
         });
         onClassChange();
       }
@@ -624,7 +624,7 @@
         filteredUsers.sort((a, b) => Number(a.seatNumber) - Number(b.seatNumber));
         filteredUsers.forEach(u => {
           const paddedSeat = String(u.seatNumber).padStart(2, '0');
-          studentSelect.innerHTML += `<option value="u.seatNumber"data-name="{u.name}" data-class="u.className">{paddedSeat}號 ${u.name}</option>`;
+          studentSelect.innerHTML += `<option value="${u.seatNumber}" data-name="${u.name}" data-class="${u.className}">${paddedSeat}號 ${u.name}</option>`;
         });
       }
 
@@ -737,7 +737,7 @@
       if (!currentQuizData || currentQuizData.length === 0) {
         showToast("載入試卷中...", "fa-spinner fa-spin");
         try {
-          const response = await fetch(`GASAPIURL?action=getInitialData&quizId={encodeURIComponent(quizId)}`);
+          const response = await fetch(`${GAS_API_URL}?action=getInitialData&quizId=${encodeURIComponent(quizId)}`);
           const result = await response.json();
           if (result.status === 'success' && result.questions && result.questions.length > 0) {
             currentQuizData = result.questions;
@@ -877,14 +877,14 @@
       const tQuizSelect = document.getElementById('teacher-select-quiz');
       tQuizSelect.innerHTML = '';
       availableUnits.forEach(u => {
-        tQuizSelect.innerHTML += `<option value="u">{u}</option>`;
+        tQuizSelect.innerHTML += `<option value="${u}">${u}</option>`;
       });
 
       const tClassSelect = document.getElementById('teacher-select-class');
       tClassSelect.innerHTML = `<option value="ALL">全部受測班級 (全體統計)</option>`;
       const classes = [...new Set(allUsersData.map(u => String(u.className).trim()).filter(c => c && c !== '教師' && c !== '教師組'))];
       classes.forEach(c => {
-        tClassSelect.innerHTML += `<option value="c">{c}</option>`;
+        tClassSelect.innerHTML += `<option value="${c}">${c}</option>`;
       });
 
       showView('view-teacher');
@@ -898,7 +898,7 @@
       showToast(`正在載入【${selectedQuiz}】診斷數據...`, "fa-spinner fa-spin");
 
       try {
-        const response = await fetch(`GASAPIURL?action=getTeacherAnalytics&quizId={encodeURIComponent(selectedQuiz)}&className=${encodeURIComponent(selectedClass)}`);
+        const response = await fetch(`${GAS_API_URL}?action=getTeacherAnalytics&quizId=${encodeURIComponent(selectedQuiz)}&className=${encodeURIComponent(selectedClass)}`);
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -966,7 +966,7 @@
         let optionsHTML = '';
         q.options.forEach((opt, idx) => {
           const isAnswer = (idx === q.answer);
-          optionsHTML += `<div class="isAnswer?'text-green-700font-bold':'text-gray-600'">({optionBadges[idx]}) ${opt} ${isAnswer ? '✓ (正解)' : ''}</div>`;
+          optionsHTML += `<div class="${isAnswer ? 'text-green-700 font-bold' : 'text-gray-600'}">(${optionBadges[idx]}) ${opt} ${isAnswer ? '✓ (正解)' : ''}</div>`;
         });
 
         let studentsHTML = '';
@@ -992,10 +992,10 @@
           <div class="flex items-center justify-between font-bold mb-2">
             <span class="text-gray-800 text-sm flex items-center gap-1.5">
               <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center">${q.qIndex}</span>
-              【向度：q.dimension】{q.question}
+              【向度：${q.dimension}】${q.question}
             </span>
             <span class="text-xs px-2.5 py-1 rounded-full font-black ${wrongRate > 40 ? 'bg-red-100 text-brand-600' : 'bg-gray-100 text-gray-600'}">
-              錯誤率 wrongRate%({analysis.wrongCount}人)
+              錯誤率 ${wrongRate}% (${analysis.wrongCount}人)
             </span>
           </div>
           ${passageHTML}
@@ -1041,7 +1041,7 @@
         mobileBtn.classList.add('hidden');
       }
 
-      document.getElementById('question-title').innerText = `第 currentQuestionIndex+1題．【{q.dimension || '基礎能力'}】${q.question}`;
+      document.getElementById('question-title').innerText = `第 ${currentQuestionIndex + 1} 題．【${q.dimension || '基礎能力'}】${q.question}`;
       
       const optionsList = document.getElementById('options-list');
       optionsList.innerHTML = '';
@@ -1170,7 +1170,7 @@
           showToast("作答已送出，診斷報告已寄至信箱！", "fa-envelope-circle-check");
         }
 
-        const statsRes = await fetch(`GASAPIURL?action=getTeacherAnalytics&quizId={encodeURIComponent(currentUser.quizId)}&className=ALL`);
+        const statsRes = await fetch(`${GAS_API_URL}?action=getTeacherAnalytics&quizId=${encodeURIComponent(currentUser.quizId)}&className=ALL`);
         statsData = await statsRes.json();
       } catch(e) {}
 
@@ -1241,7 +1241,7 @@
 
       const insightBox = document.getElementById('ai-insight-box');
       if (minScore < 100 && weakTag) {
-        insightBox.innerHTML = `<i class="fa-solid fa-lightbulb text-brand-600 mr-1"></i><strong>弱點診斷：</strong>你在「<strong>weakTag</strong>」向度掌握度較低（{minScore}%），建議對照「錯題詳解」頁籤補強複習！`;
+        insightBox.innerHTML = `<i class="fa-solid fa-lightbulb text-brand-600 mr-1"></i><strong>弱點診斷：</strong>你在「<strong>${weakTag}</strong>」向度掌握度較低（${minScore}%），建議對照「錯題詳解」頁籤補強複習！`;
       } else {
         insightBox.innerHTML = `<i class="fa-solid fa-award text-brand-600 mr-1"></i><strong>表現出色：</strong>你在各能力向度表現均非常優異，請繼續保持！`;
       }
@@ -1308,7 +1308,7 @@
               callbacks: {
                 label: function(context) {
                   const qNum = context.dataIndex + 1;
-                  return `全班錯 context.raw人|你的作答：{myWrongQuestions.includes(qNum) ? '❌ 答錯' : '✅ 答對'}`;
+                  return `全班錯 ${context.raw} 人 | 你的作答：${myWrongQuestions.includes(qNum) ? '❌ 答錯' : '✅ 答對'}`;
                 }
               }
             }
@@ -1347,7 +1347,7 @@
           row.className = "flex items-center justify-between p-2.5 rounded-xl bg-white border border-gray-100 text-sm";
           row.innerHTML = `
             <div class="flex items-center gap-3">
-              <span class="w-6 h-6 rounded-full rankColortext-xsfont-blackflexitems-centerjustify-center">{rank}</span>
+              <span class="w-6 h-6 rounded-full ${rankColor} text-xs font-black flex items-center justify-center">${rank}</span>
               <span class="font-bold text-gray-700">${item.userId ? item.userId.split('_')[0] : ''} ${item.name}</span>
             </div>
             <div class="font-black text-gray-700">${item.score} <span class="text-xs text-gray-400 font-normal">分</span></div>
@@ -1380,7 +1380,7 @@
           <div class="flex items-center justify-between font-bold mb-1">
             <span class="${isCorrect ? 'text-green-700' : 'text-brand-600'} flex items-center gap-1.5">
               <i class="fa-solid ${isCorrect ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
-              第 idx+1題．向度：{q.dimension || '基礎力'}
+              第 ${idx + 1} 題．向度：${q.dimension || '基礎力'}
             </span>
             <span class="text-xs px-2 py-0.5 rounded ${isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-brand-600'}">
               ${isCorrect ? '答對' : '答錯'}
@@ -1389,7 +1389,7 @@
           <p class="font-bold text-gray-800 mb-2">${q.question}</p>
           <div class="bg-white/80 p-2.5 rounded-lg border border-gray-100 text-xs text-gray-600 mb-2 space-y-1">${optionsHTML}</div>
           <div class="grid grid-cols-2 gap-2 text-xs mb-2">
-            <div class="p-2 rounded bg-white border border-gray-100">你的答案：<strong class="isCorrect?'text-green-600':'text-brand-600'">{userAnsIdx !== undefined ? optionBadges[userAnsIdx] : '未作答'}</strong></div>
+            <div class="p-2 rounded bg-white border border-gray-100">你的答案：<strong class="${isCorrect ? 'text-green-600' : 'text-brand-600'}">${userAnsIdx !== undefined ? optionBadges[userAnsIdx] : '未作答'}</strong></div>
             <div class="p-2 rounded bg-white border border-gray-100">正確答案：<strong class="text-green-600">${optionBadges[q.answer]}</strong></div>
           </div>
           <div class="text-xs text-gray-600 bg-white/80 p-2.5 rounded-lg border border-gray-100 whitespace-pre-line">
@@ -1449,7 +1449,7 @@
             if (item.wrongTags && typeof item.wrongTags === 'object') {
               const tags = Object.keys(item.wrongTags);
               if (tags.length > 0) {
-                tagBadges = tags.map(t => `<span class="bg-red-50 text-brand-600 border border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-md mr-1">t({item.wrongTags[t]}錯)</span>`).join('');
+                tagBadges = tags.map(t => `<span class="bg-red-50 text-brand-600 border border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-md mr-1">${t} (${item.wrongTags[t]}錯)</span>`).join('');
               } else {
                 tagBadges = `<span class="bg-green-50 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-md">無錯題・滿分表現</span>`;
               }
@@ -1499,7 +1499,7 @@
       const record = currentHistoryRecords[index];
       if (!record || !record.wrongSnapshot || record.wrongSnapshot.length === 0) return;
 
-      document.getElementById('history-modal-title').innerText = `【record.quizId】錯題回顧({record.timestamp})`;
+      document.getElementById('history-modal-title').innerText = `【${record.quizId}】錯題回顧 (${record.timestamp})`;
       const content = document.getElementById('history-modal-content');
       content.innerHTML = '';
       const optionBadges = ["A", "B", "C", "D"];
@@ -1524,7 +1524,7 @@
           <div class="flex items-center justify-between font-bold mb-1.5">
             <span class="text-brand-600 flex items-center gap-1.5">
               <i class="fa-solid fa-circle-xmark"></i>
-              第 item.qIndex題．向度：{item.dimension || '基礎力'}
+              第 ${item.qIndex} 題．向度：${item.dimension || '基礎力'}
             </span>
             <span class="text-xs px-2 py-0.5 rounded bg-red-100 text-brand-600">答錯</span>
           </div>
@@ -1639,5 +1639,3 @@
   </script>
 </body>
 </html>
-
-
